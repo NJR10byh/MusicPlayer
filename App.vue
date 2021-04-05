@@ -14,7 +14,15 @@
 			})
 		},
 		onShow: function() {
-			console.log('App Show')
+			console.log('App Show');
+			uni.getLocation({
+				type: 'wgs84',
+				success: function(res) {
+					console.log(res);
+					getApp().globalData.latitude = res.latitude;
+					getApp().globalData.longitude = res.longitude;
+				}
+			});
 		},
 		onHide: function() {
 			console.log('App Hide')
@@ -33,6 +41,7 @@
 				systemtop: "",
 				systemheight: "",
 			},
+			iflogin: false,
 			// qqinfo
 			qq: {
 				logined: "",

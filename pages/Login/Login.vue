@@ -52,6 +52,7 @@
 							provider: "qq",
 							success: (res) => {
 								console.log(res);
+								getApp().globalData.iflogin = true;
 								getApp().globalData.qq.logined = true;
 								getApp().globalData.wechat.logined = false;
 								getApp().globalData.weibo.logined = false;
@@ -75,6 +76,7 @@
 							provider: "weixin",
 							success: (res) => {
 								console.log(res);
+								getApp().globalData.iflogin = true;
 								getApp().globalData.qq.logined = false;
 								getApp().globalData.wechat.logined = true;
 								getApp().globalData.weibo.logined = false;
@@ -82,7 +84,7 @@
 								getApp().globalData.wechat.openId = res.userInfo.openid;
 								getApp().globalData.wechat.avatarUrl = res.userInfo.avatarUrl;
 								uni.switchTab({
-									url: "../Tabber/mine"
+									url: "../tabBar/Mine"
 								});
 							}
 						})
@@ -98,6 +100,7 @@
 							provider: "sinaweibo",
 							success: (res) => {
 								console.log(res);
+								getApp().globalData.iflogin = true;
 								getApp().globalData.qq.logined = false;
 								getApp().globalData.wechat.logined = false;
 								getApp().globalData.weibo.logined = true;
@@ -105,7 +108,7 @@
 								getApp().globalData.weibo.openId = res.userInfo.openid;
 								getApp().globalData.weibo.avatarUrl = res.userInfo.avatarUrl;
 								uni.switchTab({
-									url: "../Tabber/mine"
+									url: "../tabBar/Mine"
 								});
 							}
 						})

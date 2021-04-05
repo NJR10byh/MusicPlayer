@@ -3,11 +3,15 @@
 			"path": "pages/tabBar/Home",
 			"style": {
 				"navigationBarTitleText": "资料库"
+				// "app-plus": {
+				// 	"background": "#000000"
+				// }
 			}
 		}, {
 			"path": "pages/tabBar/Mine",
 			"style": {
 				"navigationBarTitleText": "我的",
+				"navigationBarBackgroundColor": "#F8F8F8",
 				"enablePullDownRefresh": true
 			}
 
@@ -15,6 +19,7 @@
 			"path": "pages/tabBar/Music",
 			"style": {
 				"navigationBarTitleText": "音乐广场",
+				"backgroundColor": "#FFFFFF",
 				"enablePullDownRefresh": true
 			}
 
@@ -33,14 +38,23 @@
 				"enablePullDownRefresh": false
 			}
 
+		},
+		{
+			"path": "pages/Weather/cityselect",
+			"style": {
+				"navigationBarTitleText": "城市选择",
+				"enablePullDownRefresh": false
+			}
+
 		}
+
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#FFFFFF",
 		"app-plus": {
-			"background": "#efeff4"
+			"background": "#FFFFFF"
 		}
 	},
 	"tabBar": {
@@ -62,8 +76,8 @@
 			},
 			{
 				"pagePath": "pages/tabBar/Weather",
-				"iconPath": "static/assets/icon/Music.png",
-				"selectedIconPath": "static/assets/icon/Music_active.png",
+				"iconPath": "static/assets/icon/Weather.png",
+				"selectedIconPath": "static/assets/icon/Weather_active.png",
 				"text": "天气"
 			},
 			{

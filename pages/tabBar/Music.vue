@@ -7,7 +7,7 @@
 		<view class="Music_PlayList">
 			<text>精品歌单（鸣谢API提供方：网易云音乐）</text>
 			<view class="PlayList_Info">
-				<view class="Info" v-for="items in playlists">
+				<view class="Info" v-for="(items,index) in playlists" @click="Playlist_detail(index)">
 					<image :src="items.coverImgUrl" mode="aspectFit"></image>
 					<view class="intro_info">
 						<text>{{items.name}}</text>
@@ -26,8 +26,9 @@
 		},
 		onPullDownRefresh: function() {
 			let that = this;
+			console.log("aaa");
 			setTimeout(function() {
-				this.getPlaylists();
+				that.getPlaylists();
 			}, 2000);
 			uni.stopPullDownRefresh();
 		},
@@ -39,19 +40,27 @@
 			};
 		},
 		methods: {
+			// 获取精品歌单
 			async getPlaylists() {
 				let that = this;
 				let res = await request('/top/playlist/highquality', {
 						limit: 8
 					},
 					"GET");
-				console.log(res.data);
 				for (let i = 0; i < res.data.playlists.length; i++) {
 					let obj = {};
+					obj.playlist_id = res.data.playlists[i].id;
 					obj.coverImgUrl = res.data.playlists[i].coverImgUrl;
 					obj.name = res.data.playlists[i].name;
 					that.playlists.push(obj);
 				}
+			},
+			Playlist_detail(index) {
+				console.log(this.playlists[index]);
+				let arr = JSON.stringify(this.playlists[index]);
+				uni.navigateTo({
+					url: "../Music/PlaylistDetail/PlaylistDetail?playlist=" + arr,
+				})
 			}
 		}
 	}

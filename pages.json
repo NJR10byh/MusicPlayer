@@ -1,11 +1,15 @@
 {
+	"easycom": {
+		// 下载安装的方式需要前面的"@/"，npm安装的方式无需"@/"
+		// 下载安装方式
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+		// npm安装方式
+		// "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+	},
 	"pages": [{
 			"path": "pages/tabBar/Home",
 			"style": {
 				"navigationBarTitleText": "资料库"
-				// "app-plus": {
-				// 	"background": "#000000"
-				// }
 			}
 		}, {
 			"path": "pages/tabBar/Mine",
@@ -14,7 +18,6 @@
 				"navigationBarBackgroundColor": "#F8F8F8",
 				"enablePullDownRefresh": true
 			}
-
 		}, {
 			"path": "pages/tabBar/Music",
 			"style": {
@@ -22,7 +25,6 @@
 				"backgroundColor": "#FFFFFF",
 				"enablePullDownRefresh": true
 			}
-
 		},
 		{
 			"path": "pages/tabBar/Weather",
@@ -30,14 +32,12 @@
 				"navigationBarTitleText": "天气",
 				"enablePullDownRefresh": true
 			}
-
 		}, {
 			"path": "pages/Login/Login",
 			"style": {
 				"navigationBarTitleText": "登录",
 				"enablePullDownRefresh": false
 			}
-
 		},
 		{
 			"path": "pages/Weather/cityselect",
@@ -45,7 +45,24 @@
 				"navigationBarTitleText": "城市选择",
 				"enablePullDownRefresh": false
 			}
-
+		},
+		{
+			"path": "pages/Music/PlaylistDetail/PlaylistDetail",
+			"style": {
+				"navigationBarTitleText": "精品歌单",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "components/MusicPlayer/MusicPlayer",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"app-plus": {
+					// 将回弹属性关掉
+					"bounce": "none"
+				}
+			}
 		}
 
 	],

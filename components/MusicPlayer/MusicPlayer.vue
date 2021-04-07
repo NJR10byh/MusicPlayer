@@ -1,0 +1,342 @@
+<template>
+	<view class="imt-audio">
+		<view class="Songinfo">
+			<view class="songname">
+				{{songname}}
+			</view>
+			<view class="songauthor">
+				{{songauthor}}
+			</view>
+		</view>
+		<view class="rotateBox rotatebox" :style="{animationPlayState: paused? 'paused':'running'}">
+			<img :src="imgurl" />
+		</view>
+		<view class="audio-wrapper">
+			<view class="audio-number" style="margin-right:13rpx">{{ format(current) }}</view>
+			<u-slider v-model="slideWidth" @moving="moveing" @end="endMove" :disabled="loading"
+				style="width:524rpx;margin-top: 50rpx;" :block-width="12" block-color="#409EFF" :height="2"
+				inactive-color="#c4c4c4" :unidirectionalDatatTransfer="true" active-color='#409EFF'></u-slider>
+			<view class="audio-number" style="margin-left:13rpx">{{ format(duration) }}</view>
+		</view>
+		<view class="audio-control-wrapper" :style="{ color }">
+			<view class="audio-control audio-control-prev iconfont icon-bofangqi_shangyizhenbeifen" v-if="control"
+				:style="{ borderColor: color,fontSize:'61rpx' }" @click="prev"></view>
+			<view class="audio-control audio-control-switch" :class="{ audioLoading: loading }"
+				@click="audio.paused ? play() : audio.pause()">
+				<text class="iconfont"
+					:class="loading ? ' icon-jiazai' : paused ? ' icon-bofangqi-bofang_' : ' icon-bofangqi-zanting'"
+					style="font-size:146rpx"></text>
+			</view>
+			<view class="audio-control audio-control-next iconfont icon-bofangqi_xiayizhenbeifen" v-if="control"
+				:style="{ borderColor: color,fontSize:'61rpx' }" @click="next"></view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		onLoad: function(query) {
+			let that = this;
+			let song = JSON.parse(query.song);
+			console.log(song);
+			that.songname = song.songname;
+			that.songauthor = song.songauthor;
+			that.imgurl = song.songimg;
+			that.src = "https://music.163.com/song/media/outer/url?id=" + song.songid + ".mp3";
+		},
+		data() {
+			return {
+				imgurl: "",
+				songname: "",
+				songauthor: "",
+				audio: uni.createInnerAudioContext(),
+				current: 0, //当前进度(s)
+				duration: 0, //总时长(s)
+				paused: true, //是否处于暂停状态
+				loading: false, //是否处于读取状态
+				seek: false, //是否处于拖动状态
+				slideWidth: 0,
+
+				src: "",
+				autoplay: true, //是否自动播放
+				continue: true, //播放完成后是否继续播放下一首，需定义@next事件
+				control: true,
+				color: "#409EFF" //主色调
+			}
+		},
+		methods: {
+			endMove() {
+				this.play()
+				const pr = (this.slideWidth / 100) * this.duration
+				// this.current = pr
+				this.audio.seek(pr)
+			},
+			moveing() {
+				this.play()
+				this.seek = true
+				const pr = (this.slideWidth / 100) * this.duration
+				this.current = pr
+				console.log(this.seek)
+			},
+			//返回prev事件
+			prev() {
+				this.slideWidth = 0
+				this.$emit('prev')
+			},
+			//返回next事件
+			next() {
+				this.slideWidth = 0
+				this.$emit('next')
+			},
+			//格式化时长
+			format(num) {
+				return '0'.repeat(2 - String(Math.floor(num / 60)).length) + Math.floor(num / 60) + ':' + '0'.repeat(2 -
+					String(Math.floor(num % 60)).length) + Math.floor(num % 60)
+			},
+			//点击播放按钮
+			play() {
+				this.audio.play()
+				// this.loading = true
+			},
+		},
+		created() {
+			if (this.src) {
+				console.log(this.src);
+				this.audio.src = this.src;
+				this.autoplay && this.play()
+			}
+			//音频进度更新事件
+			this.audio.onTimeUpdate(() => {
+				// console.log('音频进度条发生更新')
+				if (!this.seek) {
+					// console.log('重新更新')
+					this.current = this.audio.currentTime
+				}
+				if (!this.duration) {
+					this.duration = this.audio.duration
+				}
+			})
+			//音频播放事件
+			this.audio.onPlay(() => {
+				// console.log('音频播放')
+				this.paused = false
+				this.loading = false
+				console.log(this.audio.duration)
+			})
+			//音频暂停事件
+			this.audio.onPause(() => {
+				this.paused = true
+			})
+			//音频结束事件
+			this.audio.onEnded(() => {
+				console.log('音频结束')
+				if (this.continue) {
+					this.next()
+				} else {
+					this.paused = true
+					this.current = 0
+				}
+			})
+			//音频完成更改进度事件
+			this.audio.onSeeked(() => {
+				// console.log('音频进度条完成')
+				this.seek = false
+				this.$forceUpdate()
+			})
+			//微信基础库不同,必须监听这个,并且输出这个值,上面的 onTimeUpdate才会触发,不知道啥情况
+			this.audio.onCanplay(() => {
+				this.loading = false
+				console.log(this.audio.duration, '音频能够播放了')
+			})
+
+			this.audio.onWaiting(() => {
+				// console.log('XXXX')
+				this.loading = true
+				console.log(this.audio.duration)
+			})
+		},
+		beforeDestroy() {
+			this.audio.destroy()
+		},
+		watch: {
+			src(src, old) {
+				this.audio.src = src
+				this.slideWidth = 0
+				this.current = 0
+				this.duration = 0
+				if (old || this.autoplay) {
+					this.play()
+				}
+			},
+			current(value) {
+				if (this.duration > 0) {
+					if (this.current === this.duration) {
+						this.slideWidth = 100
+						return
+					}
+					// this.slideWidth = parseInt(((parseInt(value) / parseInt(this.duration)) * 100).toFixed(2))
+					this.slideWidth = Number(((value / this.duration) * 100).toFixed(4))
+				}
+			},
+		},
+	}
+</script>
+
+<style lang="scss" scoped>
+	@font-face {
+		font-family: "iconfont";
+		src: url('//at.alicdn.com/t/font_2279025_ref7yewe9x8.eot?t=1608278021196');
+		/* IE9 */
+		src: url('//at.alicdn.com/t/font_2279025_ref7yewe9x8.eot?t=1608278021196#iefix') format('embedded-opentype'),
+			/* IE6-IE8 */
+			url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAARsAAsAAAAACigAAAQdAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDSAqGZIUlATYCJAMYCw4ABCAFhG0HgQ4bkQjIngPu5taspEecucywEpQz+PesecqmabdL6sweoPQo/qoHKAeg/tPaQjyZpB8KGkmmiZPK2pthWJWWTwhyd/W/LLWIgxZgAoFQUgMEfMg+WVNbROHw3LsaXecByQGhaioUKFr8OqGYHZByYz23GWe30K4hUCu/jtcDASh8RSOj9P6Zq+GC3QiA7G5cztVaNnyGTchGaeTYBLkQ5DqFWgDMyt+efCQmA5QIBDeqNw9abv2gHWOqVUWrUKEe5wGgnQQwQDSAAzmjvsGKZSIaozh/oaRSDgYyij9oLlq2dkg7ZrVCSxWECEOow1H/8ChOAGkgnQHx1UkBGmIEGGguCBDQshGgoB1CgIN2zAaBJunAbZwAvyEDAS3YDjKGYlgHlCFmNAYxFn2XmRfp9dMWqPMVZerCEYsa2aaFCwkxL9JXBdT5Q6eienhucWksWDLVtclC8yBSt4wsbk1piercaP7UgbR++xtak5svml5/3vjas+GkaVRImr97Q2vd7ueoJ1t2LKT9BrXj8kvJB6/4ilVX0w5c9ummNI7YeDDYuRNbGplvO3+5h0vnBQcObfMiLSHbTZgb8RYtosa2/4dCXDqzZVHoWbDCXVi0/+BWT9ICs12FuTFv2ZLXURWLckxncbbo0ti9hL6KrtAoTbQy4uo/W5myYJ27bD/F4lbUnXVM48Y1cbrn2DlLmpxSwgYV+vtDGTG7qWOTdrKzU0q4ifTnqRrWMbe5vz+/HYpTSaKqq2zX3TnHbW05qs+xBFW8UThtezqysZgrGkcW60VjTrnhwqOPFmPvjPTxkf1gL1Xfe+QxkPqPvnt8AkPKPfWFxj0xgUElF9PmOAaVHfeIGJbAELCi8idlDAugU70bNui+1a3WOb/TYf4HuWgPwzZsJQfAqnLCVObejUoWwv8XZkbQO65AAASWl6hn29plf5P13J26R80Cldtl/xg9xPK/VkcCsFp5upLtUtr94y1AAJKuahSjACUMAVYMOXpwlOJbk6UBmUsNlA0fYGTBaI6PBkEvGSSyPFBEKTtZz0l/RSR1ACJNACDs7QLK6BQw9s6jOf4+CK7egcQ+BoomxemceqF1U4r6Qw6gUYdh1K2jbbHIGTSK8gd4aMheU5lzvuH5IkwJsfHd9AkWvCMOGDCYLwcOZGTqb5tUCjeDYdjUt7/9hhpMuw4MnFVcnGnshaYd+5i5hiIekAVAQzpIkW5UNgtLJwcavdd/AC5kkHkzfR3hb+DxibWTBLHiBeiTzhL1fcrGA0S4pYECjHcy8dhMpBQ9YIQJG+k7vtUbqAJTXTfEHCtxNMwk1U2vN5jv8goARXBbqVDCCCeCSMQG0uomZ7JodujDZIu7YlIMPDuW4e1fWdDiY/Q8/Ve+dyqyFywFgsEaDo8lQtasuRwAAA==') format('woff2'),
+			url('//at.alicdn.com/t/font_2279025_ref7yewe9x8.woff?t=1608278021196') format('woff'),
+			url('//at.alicdn.com/t/font_2279025_ref7yewe9x8.ttf?t=1608278021196') format('truetype'),
+			/* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+			url('//at.alicdn.com/t/font_2279025_ref7yewe9x8.svg?t=1608278021196#iconfont') format('svg');
+		/* iOS 4.1- */
+	}
+
+	.iconfont {
+		font-family: "iconfont" !important;
+		font-size: 16px;
+		font-style: normal;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	.icon-jiazai:before {
+		content: "\e615";
+	}
+
+	.icon-bofangqi-bofang_:before {
+		content: "\e63c";
+	}
+
+	.icon-bofangqi-zanting:before {
+		content: "\e600";
+	}
+
+	.icon-bofangqi_shangyizhenbeifen:before {
+		content: "\e6b7";
+	}
+
+	.icon-bofangqi_xiayizhenbeifen:before {
+		content: "\e6bb";
+	}
+
+	.imt-audio {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+		// border: 1px solid red;
+
+		// filter: blur(10px);
+		.Songinfo {
+			// width: 400rpx;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			// border: 1px solid red;
+
+			.songname {
+				font-size: 25px;
+				font-weight: bold;
+			}
+
+			.songauthor {
+				font-size: 13px;
+				font-weight: bold;
+				color: #aaa;
+				margin-top: 10rpx;
+			}
+		}
+
+
+		.rotateBox {
+			width: 400rpx;
+			height: 400rpx;
+			padding: 10rpx;
+			margin-top: 50rpx;
+			border-radius: 50%;
+			background-color: $theme-color;
+
+			>img {
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+			}
+		}
+	}
+
+	.audio-wrapper {
+		display: flex;
+		align-items: center;
+
+	}
+
+	.audio-number {
+		width: 64rpx;
+		height: 34rpx;
+		margin-top: 50rpx;
+		font-size: 24rpx;
+		font-family: PingFang SC;
+		font-weight: 500;
+		text-align: center;
+		color: #409EFF;
+	}
+
+	.audio-slider {
+		flex: 1;
+		margin: 0;
+	}
+
+	.audio-control-wrapper {
+		margin-top: 64rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.audio-control {
+		font-size: 32rpx;
+		line-height: 1;
+		// border-radius: 50%;
+		padding: 0 33rpx;
+	}
+
+
+	.audioLoading {
+		animation: loading 2s;
+		animation-iteration-count: infinite;
+		animation-timing-function: linear;
+	}
+
+	@keyframes loading {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.rotatebox {
+		animation-name: rotate;
+		animation-duration: 8s; //完成一组动画需要的时间
+		animation-timing-function: linear; //动画曲线
+		animation-iteration-count: infinite; //播放次数
+		animation-direction: normal; //是否逆向播放
+		animation-play-state: running; //动画是否暂停
+	}
+</style>

@@ -93,12 +93,10 @@
 			async getRecPlay(musicName) {
 				let that = this;
 				let res = await request(`/search?keywords=${musicName}`, {}, "GET");
-				console.log(res);
 				let obj = {};
 				obj.imgUrl = res.data.result.songs[0].artists[0].img1v1Url;
 				obj.musicname = res.data.result.songs[0].name;
 				obj.musicauthor = res.data.result.songs[0].artists[0].name;
-				console.log(obj.imgUrl);
 				that.RecentlyAdd.unshift(obj);
 			},
 

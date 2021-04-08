@@ -63,6 +63,8 @@
 				obj.songid = res.data.playlist.tracks[i].id;
 				obj.songname = res.data.playlist.tracks[i].name;
 				obj.songauthor = res.data.playlist.tracks[i].ar[0].name;
+				obj.songsrc = "https://music.163.com/song/media/outer/url?id=" + res.data.playlist.tracks[i].id +
+					".mp3";
 				that.songs.push(obj)
 			}
 		},
@@ -83,10 +85,10 @@
 			},
 			// 播放歌曲
 			Playsong(index) {
-				console.log(this.songs[index]);
-				let arr = JSON.stringify(this.songs[index]);
+				let songs = JSON.stringify(this.songs);
+				let thisSong = index;
 				uni.navigateTo({
-					url: "../../../components/MusicPlayer/MusicPlayer?song=" + arr,
+					url: "../../../components/MusicPlayer/MusicPlayer?song=" + songs + "&thisSong=" + thisSong,
 				})
 			}
 		}

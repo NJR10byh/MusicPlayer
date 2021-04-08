@@ -9,7 +9,7 @@
 			</view>
 		</view>
 		<view class="rotateBox rotatebox" :style="{animationPlayState: paused? 'paused':'running'}">
-			<img :src="imgurl" />
+			<img :src="songimg" />
 		</view>
 		<view class="audio-wrapper">
 			<view class="audio-number" style="margin-right:13rpx">{{ format(current) }}</view>
@@ -37,18 +37,21 @@
 	export default {
 		onLoad: function(query) {
 			let that = this;
-			let song = JSON.parse(query.song);
-			console.log(song);
-			that.songname = song.songname;
-			that.songauthor = song.songauthor;
-			that.imgurl = song.songimg;
-			that.src = "https://music.163.com/song/media/outer/url?id=" + song.songid + ".mp3";
+			that.song = JSON.parse(query.song);
+			that.songimg = that.song[query.thisSong].songimg;
+			that.songauthor = that.song[query.thisSong].songauthor;
+			that.songname = that.song[query.thisSong].songname;
+			that.songindex = query.thisSong;
+			that.songsrc = that.song[query.thisSong].songsrc;
 		},
 		data() {
 			return {
-				imgurl: "",
+				song: [],
+				songimg: "",
 				songname: "",
 				songauthor: "",
+				songsrc: "",
+				songindex: -1,
 				audio: uni.createInnerAudioContext(),
 				current: 0, //当前进度(s)
 				duration: 0, //总时长(s)
@@ -57,7 +60,6 @@
 				seek: false, //是否处于拖动状态
 				slideWidth: 0,
 
-				src: "",
 				autoplay: true, //是否自动播放
 				continue: true, //播放完成后是否继续播放下一首，需定义@next事件
 				control: true,
@@ -65,6 +67,59 @@
 			}
 		},
 		methods: {
+			songplay(src) {
+				if (src) {
+					console.log(src);
+					this.audio.src = src;
+					this.autoplay && this.play()
+				}
+				//音频进度更新事件
+				this.audio.onTimeUpdate(() => {
+					// console.log('音频进度条发生更新')
+					if (!this.seek) {
+						// console.log('重新更新')
+						this.current = this.audio.currentTime
+					}
+					if (!this.duration) {
+						this.duration = this.audio.duration
+					}
+				})
+				//音频播放事件
+				this.audio.onPlay(() => {
+					// console.log('音频播放')
+					this.paused = false
+					this.loading = false
+				})
+				//音频暂停事件
+				this.audio.onPause(() => {
+					this.paused = true
+				})
+				//音频结束事件
+				this.audio.onEnded(() => {
+					console.log('音频结束')
+					if (this.continue) {
+						this.next()
+					} else {
+						this.paused = true
+						this.current = 0
+					}
+				})
+				//音频完成更改进度事件
+				this.audio.onSeeked(() => {
+					// console.log('音频进度条完成')
+					this.seek = false
+					this.$forceUpdate()
+				})
+				//微信基础库不同,必须监听这个,并且输出这个值,上面的 onTimeUpdate才会触发,不知道啥情况
+				this.audio.onCanplay(() => {
+					this.loading = false
+				})
+
+				this.audio.onWaiting(() => {
+					// console.log('XXXX')
+					this.loading = true
+				})
+			},
 			endMove() {
 				this.play()
 				const pr = (this.slideWidth / 100) * this.duration
@@ -80,13 +135,34 @@
 			},
 			//返回prev事件
 			prev() {
-				this.slideWidth = 0
-				this.$emit('prev')
+				let that = this;
+				let songindex = -1;
+				if (that.songindex * 1 == 0) {
+					songindex = that.song.length - 1;
+				} else {
+					songindex = that.songindex * 1 - 1;
+				}
+				console.log(that.song[songindex]);
+				that.songimg = that.song[songindex].songimg;
+				that.songauthor = that.song[songindex].songauthor;
+				that.songname = that.song[songindex].songname;
+				that.songindex = songindex;
+				that.songplay(that.song[songindex].songsrc);
 			},
 			//返回next事件
 			next() {
-				this.slideWidth = 0
-				this.$emit('next')
+				let that = this;
+				let songindex = -1;
+				if (that.songindex * 1 == that.song.length - 1) {
+					songindex = 0;
+				} else {
+					songindex = that.songindex * 1 - 1;
+				}
+				that.songimg = that.song[songindex].songimg;
+				that.songauthor = that.song[songindex].songauthor;
+				that.songname = that.song[songindex].songname;
+				that.songindex = songindex;
+				that.songplay(that.song[songindex].songsrc);
 			},
 			//格式化时长
 			format(num) {
@@ -100,85 +176,32 @@
 			},
 		},
 		created() {
-			if (this.src) {
-				console.log(this.src);
-				this.audio.src = this.src;
-				this.autoplay && this.play()
-			}
-			//音频进度更新事件
-			this.audio.onTimeUpdate(() => {
-				// console.log('音频进度条发生更新')
-				if (!this.seek) {
-					// console.log('重新更新')
-					this.current = this.audio.currentTime
-				}
-				if (!this.duration) {
-					this.duration = this.audio.duration
-				}
-			})
-			//音频播放事件
-			this.audio.onPlay(() => {
-				// console.log('音频播放')
-				this.paused = false
-				this.loading = false
-				console.log(this.audio.duration)
-			})
-			//音频暂停事件
-			this.audio.onPause(() => {
-				this.paused = true
-			})
-			//音频结束事件
-			this.audio.onEnded(() => {
-				console.log('音频结束')
-				if (this.continue) {
-					this.next()
-				} else {
-					this.paused = true
-					this.current = 0
-				}
-			})
-			//音频完成更改进度事件
-			this.audio.onSeeked(() => {
-				// console.log('音频进度条完成')
-				this.seek = false
-				this.$forceUpdate()
-			})
-			//微信基础库不同,必须监听这个,并且输出这个值,上面的 onTimeUpdate才会触发,不知道啥情况
-			this.audio.onCanplay(() => {
-				this.loading = false
-				console.log(this.audio.duration, '音频能够播放了')
-			})
-
-			this.audio.onWaiting(() => {
-				// console.log('XXXX')
-				this.loading = true
-				console.log(this.audio.duration)
-			})
+			this.songplay(this.songsrc);
 		},
 		beforeDestroy() {
 			this.audio.destroy()
 		},
-		watch: {
-			src(src, old) {
-				this.audio.src = src
-				this.slideWidth = 0
-				this.current = 0
-				this.duration = 0
-				if (old || this.autoplay) {
-					this.play()
-				}
-			},
-			current(value) {
-				if (this.duration > 0) {
-					if (this.current === this.duration) {
-						this.slideWidth = 100
-						return
-					}
-					// this.slideWidth = parseInt(((parseInt(value) / parseInt(this.duration)) * 100).toFixed(2))
-					this.slideWidth = Number(((value / this.duration) * 100).toFixed(4))
-				}
-			},
-		},
+		// watch: {
+		// 	src(src, old) {
+		// 		this.audio.src = src
+		// 		this.slideWidth = 0
+		// 		this.current = 0
+		// 		this.duration = 0
+		// 		if (old || this.autoplay) {
+		// 			this.play()
+		// 		}
+		// 	},
+		// 	current(value) {
+		// 		if (this.duration > 0) {
+		// 			if (this.current === this.duration) {
+		// 				this.slideWidth = 100
+		// 				return
+		// 			}
+		// 			// this.slideWidth = parseInt(((parseInt(value) / parseInt(this.duration)) * 100).toFixed(2))
+		// 			this.slideWidth = Number(((value / this.duration) * 100).toFixed(4))
+		// 		}
+		// 	},
+		// },
 	}
 </script>
 
@@ -231,7 +254,6 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: flex-start;
-		// border: 1px solid red;
 
 		// filter: blur(10px);
 		.Songinfo {
@@ -260,9 +282,9 @@
 			width: 400rpx;
 			height: 400rpx;
 			padding: 10rpx;
-			margin-top: 50rpx;
 			border-radius: 50%;
 			background-color: $theme-color;
+			margin-top: 20rpx;
 
 			>img {
 				width: 100%;

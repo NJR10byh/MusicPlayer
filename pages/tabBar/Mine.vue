@@ -32,7 +32,6 @@
 	export default {
 		created: function() {
 			let that = this;
-			console.log(currentDate.getDate());
 			that.date = currentDate.getDate();
 		},
 		onShow: function() {
@@ -86,13 +85,6 @@
 					url: "../Login/Login"
 				});
 			},
-			// 跳转设置界面
-			Settings() {
-				uni.navigateTo({
-					url: "../Functions/settings"
-				});
-			},
-
 		}
 	}
 </script>

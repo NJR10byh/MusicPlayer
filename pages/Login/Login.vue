@@ -1,12 +1,14 @@
 <template>
 	<view class="container">
+		<uni-popup ref="popup" type="message">
+			<uni-popup-message type="success" message="成功消息" :duration="2000"></uni-popup-message>
+		</uni-popup>
 		<view class="Box">
 			<view class="logo">
 				<image src="../../static/assets/img/Music_Logo.png" mode="aspectFit"></image>
 			</view>
 			<view class="login">
 				<view class="username">
-					<!-- <text class="text">用户名: </text> -->
 					<input type="text" value="" placeholder="请输入用户名"
 						placeholder-style="color:#bdc3c7;text-align:center;" />
 				</view>
@@ -28,7 +30,7 @@
 					<image src="../../static/assets/img/icon-qq.png" mode="aspectFit" @click="qqlogin"></image>
 					<image src="../../static/assets/img/icon-wechat.png" mode="aspectFit" @click="wechatlogin"></image>
 					<image src="../../static/assets/img/icon-weibo.png" mode="aspectFit" @click="weibologin"></image>
-					<image src="../../static/assets/img/icon-apple.png" mode="aspectFit"></image>
+					<image src="../../static/assets/img/icon-apple.png" mode="aspectFit" @click="applelogin"></image>
 				</view>
 			</view>
 		</view>
@@ -43,6 +45,7 @@
 			}
 		},
 		methods: {
+			// 通过QQ登录
 			qqlogin() {
 				uni.login({
 					provider: "qq",
@@ -67,6 +70,7 @@
 					}
 				})
 			},
+			// 通过微信登录
 			wechatlogin() {
 				uni.login({
 					provider: "weixin",
@@ -91,6 +95,7 @@
 					}
 				})
 			},
+			// 通过微博登录
 			weibologin() {
 				uni.login({
 					provider: "sinaweibo",
@@ -115,21 +120,22 @@
 					}
 				})
 			},
-			// Apple登录暂不开放
-			// applelogin() {
-			// 	uni.login({
-			// 		provider: "apple",
-			// 		success: (res) => {
-			// 			console.log(res);
-			// 			uni.getUserInfo({
-			// 				provider: "apple",
-			// 				success: (res) => {
-			// 					console.log(res)
-			// 				}
-			// 			})
-			// 		}
-			// 	})
-			// },
+			// 通过Apple登录暂不开放
+			applelogin() {
+
+				// uni.login({
+				// 	provider: "apple",
+				// 	success: (res) => {
+				// 		console.log(res);
+				// 		uni.getUserInfo({
+				// 			provider: "apple",
+				// 			success: (res) => {
+				// 				console.log(res)
+				// 			}
+				// 		})
+				// 	}
+				// })
+			},
 		},
 	}
 </script>
@@ -161,6 +167,7 @@
 				justify-content: center;
 				width: 300rpx;
 				height: 300rpx;
+				margin-bottom: 50rpx;
 			}
 
 			.login {

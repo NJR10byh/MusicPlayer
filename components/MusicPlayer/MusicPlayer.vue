@@ -14,7 +14,7 @@
 		<view class="audio-wrapper">
 			<view class="audio-number" style="margin-right:13rpx">{{ format(current) }}</view>
 			<u-slider v-model="slideWidth" @moving="moveing" @end="endMove" :disabled="loading"
-				style="width:524rpx;margin-top: 50rpx;" :block-width="12" block-color="#409EFF" :height="2"
+				style="width:524rpx;margin-top: 50rpx;" :block-width="20" block-color="#409EFF" :height="5"
 				inactive-color="#c4c4c4" :unidirectionalDatatTransfer="true" active-color='#409EFF'></u-slider>
 			<view class="audio-number" style="margin-left:13rpx">{{ format(duration) }}</view>
 		</view>
@@ -80,9 +80,7 @@
 						// console.log('重新更新')
 						this.current = this.audio.currentTime
 					}
-					if (!this.duration) {
-						this.duration = this.audio.duration
-					}
+					this.duration = this.audio.duration
 				})
 				//音频播放事件
 				this.audio.onPlay(() => {
@@ -131,7 +129,6 @@
 				this.seek = true
 				const pr = (this.slideWidth / 100) * this.duration
 				this.current = pr
-				console.log(this.seek)
 			},
 			//返回prev事件
 			prev() {
@@ -147,6 +144,7 @@
 				that.songauthor = that.song[songindex].songauthor;
 				that.songname = that.song[songindex].songname;
 				that.songindex = songindex;
+				that.slideWidth = 0;
 				that.songplay(that.song[songindex].songsrc);
 			},
 			//返回next事件
@@ -156,12 +154,13 @@
 				if (that.songindex * 1 == that.song.length - 1) {
 					songindex = 0;
 				} else {
-					songindex = that.songindex * 1 - 1;
+					songindex = that.songindex * 1 + 1;
 				}
 				that.songimg = that.song[songindex].songimg;
 				that.songauthor = that.song[songindex].songauthor;
 				that.songname = that.song[songindex].songname;
 				that.songindex = songindex;
+				that.slideWidth = 0;
 				that.songplay(that.song[songindex].songsrc);
 			},
 			//格式化时长

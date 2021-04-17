@@ -35,9 +35,9 @@
 							</view>
 						</view>
 					</view>
-					<view class="songinfo_right">
+					<!-- <view class="songinfo_right">
 						<image src="../../../static/assets/music/mv.png" mode="aspectFit"></image>
-					</view>
+					</view> -->
 				</view>
 			</view>
 		</view>

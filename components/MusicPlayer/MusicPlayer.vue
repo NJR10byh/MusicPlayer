@@ -40,7 +40,7 @@
 				:style="{ borderColor: color,fontSize:'61rpx' }" @click="next">
 			</view>
 			<view class="PlayMode Lyric">
-				<image src="../../static/assets/music/lyric.png" mode=""></image>
+				<image src="../../static/assets/music/lyric.png" mode="aspectFit" @click="getlyric"></image>
 			</view>
 		</view>
 	</view>
@@ -51,6 +51,7 @@
 		onLoad: function(query) {
 			let that = this;
 			that.song = JSON.parse(query.song);
+			that.songid = that.song[query.thisSong].songid;
 			that.songimg = that.song[query.thisSong].songimg;
 			that.songauthor = that.song[query.thisSong].songauthor;
 			that.songname = that.song[query.thisSong].songname;
@@ -245,14 +246,25 @@
 			},
 
 			// 播放模式切换
+			// 单曲循环
 			ordertoloop() {
 				this.playmode = "loop_once";
 			},
+			// 随机播放
 			looptorandom() {
 				this.playmode = "random";
 			},
+			// 顺序播放
 			randomtoorder() {
 				this.playmode = "order";
+			},
+			// 获取歌词
+			getlyric() {
+				console.log(this.song[this.songindex]);
+				let thisSong = JSON.stringify(this.song[this.songindex]);
+				uni.navigateTo({
+					url: "./MusicLyric?thisSong=" + thisSong,
+				})
 			},
 		},
 		created() {

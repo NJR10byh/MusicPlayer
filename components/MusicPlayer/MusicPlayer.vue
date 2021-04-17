@@ -19,6 +19,15 @@
 			<view class="audio-number" style="margin-left:13rpx">{{ format(duration) }}</view>
 		</view>
 		<view class="audio-control-wrapper" :style="{ color }">
+			<view class="PlayMode">
+				<image src="../../static/assets/music/order.png" mode="aspectFit" v-if="playmode=='order'"
+					@click="ordertoloop"></image>
+				<image src="../../static/assets/music/loop_once.png" mode="aspectFit" v-if="playmode=='loop_once'"
+					@click="looptorandom">
+				</image>
+				<image src="../../static/assets/music/random.png" mode="aspectFit" v-if="playmode=='random'"
+					@click="randomtoorder"></image>
+			</view>
 			<view class="audio-control audio-control-prev iconfont icon-bofangqi_shangyizhenbeifen" v-if="control"
 				:style="{ borderColor: color,fontSize:'61rpx' }" @click="prev"></view>
 			<view class="audio-control audio-control-switch" :class="{ audioLoading: loading }"
@@ -28,7 +37,11 @@
 					style="font-size:146rpx"></text>
 			</view>
 			<view class="audio-control audio-control-next iconfont icon-bofangqi_xiayizhenbeifen" v-if="control"
-				:style="{ borderColor: color,fontSize:'61rpx' }" @click="next"></view>
+				:style="{ borderColor: color,fontSize:'61rpx' }" @click="next">
+			</view>
+			<view class="PlayMode Lyric">
+				<image src="../../static/assets/music/lyric.png" mode=""></image>
+			</view>
 		</view>
 	</view>
 </template>
@@ -63,7 +76,8 @@
 				autoplay: true, //是否自动播放
 				continue: true, //播放完成后是否继续播放下一首，需定义@next事件
 				control: true,
-				color: "#409EFF" //主色调
+				color: "#409EFF", //主色调
+				playmode: "order", // 播放模式
 			}
 		},
 		methods: {
@@ -119,6 +133,7 @@
 				})
 			},
 			endMove() {
+				this.seek = false
 				this.play()
 				const pr = (this.slideWidth / 100) * this.duration
 				// this.current = pr
@@ -134,44 +149,110 @@
 			prev() {
 				let that = this;
 				let songindex = -1;
-				if (that.songindex * 1 == 0) {
-					songindex = that.song.length - 1;
-				} else {
-					songindex = that.songindex * 1 - 1;
+				switch (that.playmode) {
+					case "order":
+						if (that.songindex * 1 == 0) {
+							songindex = that.song.length - 1;
+						} else {
+							songindex = that.songindex * 1 - 1;
+						}
+						console.log(that.song[songindex]);
+						that.songimg = that.song[songindex].songimg;
+						that.songauthor = that.song[songindex].songauthor;
+						that.songname = that.song[songindex].songname;
+						that.songindex = songindex;
+						that.slideWidth = 0;
+						that.songplay(that.song[songindex].songsrc);
+						break;
+					case "loop_once":
+						songindex = that.songindex * 1
+						that.songimg = that.song[songindex].songimg;
+						that.songauthor = that.song[songindex].songauthor;
+						that.songname = that.song[songindex].songname;
+						that.songindex = songindex;
+						that.slideWidth = 0;
+						that.songplay(that.song[songindex].songsrc);
+						break;
+					case "random":
+						let min = 0;
+						let max = that.song.length - 1;
+						songindex = Math.round(Math.random() * (max - min) + min);
+						console.log(songindex);
+						that.songimg = that.song[songindex].songimg;
+						that.songauthor = that.song[songindex].songauthor;
+						that.songname = that.song[songindex].songname;
+						that.songindex = songindex;
+						that.slideWidth = 0;
+						that.songplay(that.song[songindex].songsrc);
+						break;
+					default:
+						break;
 				}
-				console.log(that.song[songindex]);
-				that.songimg = that.song[songindex].songimg;
-				that.songauthor = that.song[songindex].songauthor;
-				that.songname = that.song[songindex].songname;
-				that.songindex = songindex;
-				that.slideWidth = 0;
-				that.songplay(that.song[songindex].songsrc);
 			},
 			//返回next事件
 			next() {
 				let that = this;
 				let songindex = -1;
-				if (that.songindex * 1 == that.song.length - 1) {
-					songindex = 0;
-				} else {
-					songindex = that.songindex * 1 + 1;
+				switch (that.playmode) {
+					case "order":
+						if (that.songindex * 1 == that.song.length - 1) {
+							songindex = 0;
+						} else {
+							songindex = that.songindex * 1 + 1;
+						}
+						that.songimg = that.song[songindex].songimg;
+						that.songauthor = that.song[songindex].songauthor;
+						that.songname = that.song[songindex].songname;
+						that.songindex = songindex;
+						that.slideWidth = 0;
+						that.songplay(that.song[songindex].songsrc);
+						break;
+					case "loop_once":
+						songindex = that.songindex * 1
+						that.songimg = that.song[songindex].songimg;
+						that.songauthor = that.song[songindex].songauthor;
+						that.songname = that.song[songindex].songname;
+						that.songindex = songindex;
+						that.slideWidth = 0;
+						that.songplay(that.song[songindex].songsrc);
+						break;
+					case "random":
+						let min = 0;
+						let max = that.song.length - 1;
+						songindex = Math.round(Math.random() * (max - min) + min);
+						console.log(songindex);
+						that.songimg = that.song[songindex].songimg;
+						that.songauthor = that.song[songindex].songauthor;
+						that.songname = that.song[songindex].songname;
+						that.songindex = songindex;
+						that.slideWidth = 0;
+						that.songplay(that.song[songindex].songsrc);
+						break;
+					default:
+						break;
 				}
-				that.songimg = that.song[songindex].songimg;
-				that.songauthor = that.song[songindex].songauthor;
-				that.songname = that.song[songindex].songname;
-				that.songindex = songindex;
-				that.slideWidth = 0;
-				that.songplay(that.song[songindex].songsrc);
 			},
 			//格式化时长
 			format(num) {
-				return '0'.repeat(2 - String(Math.floor(num / 60)).length) + Math.floor(num / 60) + ':' + '0'.repeat(2 -
-					String(Math.floor(num % 60)).length) + Math.floor(num % 60)
+				return '0'.repeat(2 - String(Math.floor(num / 60)).length) + Math.floor(num / 60) + ':' + '0'
+					.repeat(2 -
+						String(Math.floor(num % 60)).length) + Math.floor(num % 60)
 			},
 			//点击播放按钮
 			play() {
 				this.audio.play()
 				// this.loading = true
+			},
+
+			// 播放模式切换
+			ordertoloop() {
+				this.playmode = "loop_once";
+			},
+			looptorandom() {
+				this.playmode = "random";
+			},
+			randomtoorder() {
+				this.playmode = "order";
 			},
 		},
 		created() {
@@ -180,27 +261,27 @@
 		beforeDestroy() {
 			this.audio.destroy()
 		},
-		// watch: {
-		// 	src(src, old) {
-		// 		this.audio.src = src
-		// 		this.slideWidth = 0
-		// 		this.current = 0
-		// 		this.duration = 0
-		// 		if (old || this.autoplay) {
-		// 			this.play()
-		// 		}
-		// 	},
-		// 	current(value) {
-		// 		if (this.duration > 0) {
-		// 			if (this.current === this.duration) {
-		// 				this.slideWidth = 100
-		// 				return
-		// 			}
-		// 			// this.slideWidth = parseInt(((parseInt(value) / parseInt(this.duration)) * 100).toFixed(2))
-		// 			this.slideWidth = Number(((value / this.duration) * 100).toFixed(4))
-		// 		}
-		// 	},
-		// },
+		watch: {
+			// src(src, old) {
+			// 	this.audio.src = src
+			// 	this.slideWidth = 0
+			// 	this.current = 0
+			// 	this.duration = 0
+			// 	if (old || this.autoplay) {
+			// 		this.play()
+			// 	}
+			// },
+			current(value) {
+				if (this.duration > 0) {
+					if (this.current === this.duration) {
+						this.slideWidth = 100
+						return
+					}
+					// this.slideWidth = parseInt(((parseInt(value) / parseInt(this.duration)) * 100).toFixed(2))
+					this.slideWidth = Number(((value / this.duration) * 100).toFixed(4))
+				}
+			},
+		},
 	}
 </script>
 
@@ -253,6 +334,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: flex-start;
+		// border: 1px solid red;
 
 		// filter: blur(10px);
 		.Songinfo {
@@ -320,6 +402,21 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		// border: 1px solid red;
+
+		.PlayMode {
+			image {
+				width: 50rpx;
+				height: 50rpx;
+			}
+
+			margin-right: 40rpx;
+		}
+
+		.Lyric {
+			margin-right: 0;
+			margin-left: 40rpx;
+		}
 	}
 
 	.audio-control {

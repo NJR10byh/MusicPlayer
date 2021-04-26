@@ -7,8 +7,6 @@
 </template>
 
 <script>
-	import request from "@/pages/API/musicAPI.js";
-	import axios from "@/pages/API/axios.js";
 	export default {
 		onLoad: function(query) {
 			let that = this;
@@ -18,7 +16,6 @@
 		created: async function() {
 			let that = this;
 			let url = "http://music.163.com/api/song/media?id=" + that.songid;
-			// let res = await request(url, {}, "GET");
 			uni.request({
 				url: url,
 				method: "GET",

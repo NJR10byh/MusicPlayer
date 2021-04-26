@@ -9,7 +9,8 @@
 			</view>
 		</view>
 		<view class="rotateBox rotatebox" :style="{animationPlayState: paused? 'paused':'running'}">
-			<img :src="songimg" />
+			<image :src="songimg" v-if="nosongimg==false"></image>
+			<image src="../../static/assets/music/nosongimg.png" mode="aspectFit" v-else></image>
 		</view>
 		<view class="audio-wrapper">
 			<view class="audio-number" style="margin-right:13rpx">{{ format(current) }}</view>
@@ -39,8 +40,11 @@
 			<view class="audio-control audio-control-next iconfont icon-bofangqi_xiayizhenbeifen" v-if="control"
 				:style="{ borderColor: color,fontSize:'61rpx' }" @click="next">
 			</view>
-			<view class="PlayMode Lyric">
+			<view class="PlayMode Lyric" v-if="nosongimg==false">
 				<image src="../../static/assets/music/lyric.png" mode="aspectFit" @click="getlyric"></image>
+			</view>
+			<view class="PlayMode Lyric" v-else>
+				<image src="../../static/assets/music/nolyric.png" mode="aspectFit"></image>
 			</view>
 		</view>
 	</view>
@@ -50,9 +54,15 @@
 	export default {
 		onLoad: function(query) {
 			let that = this;
+			that.nosongimg = false;
 			that.song = JSON.parse(query.song);
+			console.log(that.song[query.thisSong].songimg);
 			that.songid = that.song[query.thisSong].songid;
-			that.songimg = that.song[query.thisSong].songimg;
+			if (that.song[query.thisSong].songimg == undefined) {
+				that.nosongimg = true;
+			} else {
+				that.songimg = that.song[query.thisSong].songimg;
+			}
 			that.songauthor = that.song[query.thisSong].songauthor;
 			that.songname = that.song[query.thisSong].songname;
 			that.songindex = query.thisSong;
@@ -62,6 +72,7 @@
 			return {
 				song: [],
 				songimg: "",
+				nosongimg: false,
 				songname: "",
 				songauthor: "",
 				songsrc: "",
@@ -86,7 +97,8 @@
 				if (src) {
 					console.log(src);
 					this.audio.src = src;
-					this.autoplay && this.play()
+					console.log(this.audio);
+					this.autoplay && this.play();
 				}
 				//音频进度更新事件
 				this.audio.onTimeUpdate(() => {
@@ -374,14 +386,13 @@
 		.rotateBox {
 			width: 400rpx;
 			height: 400rpx;
-			padding: 10rpx;
 			border-radius: 50%;
-			background-color: $theme-color;
+			// background-color: $theme-color;
 			margin-top: 20rpx;
 
-			>img {
-				width: 100%;
-				height: 100%;
+			image {
+				width: 400rpx;
+				height: 400rpx;
 				border-radius: 50%;
 			}
 		}

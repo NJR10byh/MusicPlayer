@@ -41,6 +41,8 @@
 				systemtop: "",
 				systemheight: "",
 			},
+			// 播放列表
+			Song: [],
 			iflogin: false,
 			// qqinfo
 			qq: {

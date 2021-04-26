@@ -67,17 +67,22 @@
 					"bounce": "none"
 				}
 			}
+		}, {
+			"path": "components/MusicPlayer/MusicLyric",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/Music/MusicList/MusicList",
+			"style": {
+				"navigationBarTitleText": "播放列表",
+				"enablePullDownRefresh": false
+			}
+
 		}
-	    ,{
-            "path" : "components/MusicPlayer/MusicLyric",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#FFFFFF",

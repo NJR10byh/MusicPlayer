@@ -19,7 +19,7 @@
 					<uni-icons type="forward" size="17" color="#999"></uni-icons>
 				</view>
 			</view>
-			<view class="function">
+			<!-- <view class="function">
 				<view class="left">
 					<view class="function_icon">
 
@@ -39,6 +39,19 @@
 					</view>
 					<view class="function_name">
 						歌曲
+					</view>
+				</view>
+				<view class="right">
+					<uni-icons type="forward" size="17" color="#999"></uni-icons>
+				</view>
+			</view> -->
+			<view class="function" @click="chooseFile">
+				<view class="left">
+					<view class="function_icon">
+
+					</view>
+					<view class="function_name">
+						获取本地文件
 					</view>
 				</view>
 				<view class="right">
@@ -71,21 +84,20 @@
 
 <script>
 	import request from "../API/musicAPI.js";
+	import chooseMusic from "../API/choosefile.js"
 	export default {
 		created: function() {
-			this.getRecPlay("烟火里的尘埃");
-			this.getRecPlay("失眠飞行");
-			this.getRecPlay("错位时空");
-			this.getRecPlay("起风了");
-			this.getRecPlay("句号");
-			this.getRecPlay("寒鸦少年");
+			// this.getRecPlay("烟火里的尘埃");
+			// this.getRecPlay("失眠飞行");
+			// this.getRecPlay("错位时空");
+			// this.getRecPlay("起风了");
+			// this.getRecPlay("句号");
+			// this.getRecPlay("寒鸦少年");
 		},
 		data() {
 			return {
+				audio: uni.createInnerAudioContext(),
 				RecentlyAdd: [],
-
-				src1: "http://m7.music.126.net/20210327112923/168814ecbc4e38515a037be20593a94c/ymusic/5d63/5150/0851/5f226aac018cafc2cb248f7d28fbd5b4.mp3",
-				src2: "http://m7.music.126.net/20210327114428/339314ade499860d0bcd6683ffbb4185/ymusic/0608/0558/005b/1b5964e0cb226d9830507157285cad4a.mp3",
 			};
 		},
 		methods: {
@@ -115,6 +127,20 @@
 					console.log('end');
 					Audio.destroy();
 				});
+			},
+			// 选择本地文件
+			chooseFile() {
+				console.log(plus.os.name);
+				if (plus.os.name == "Android");
+				chooseMusic((res) => {
+					console.log('file://' + res);
+					let songsrc = 'file://' + res;
+					this.audio.src = songsrc;
+					console.log(this.audio);
+					uni.navigateTo({
+						url: "../Music/MusicList/MusicList?songsrc=" + songsrc
+					})
+				}, "audio/*");
 			}
 		}
 	}
@@ -156,6 +182,10 @@
 				}
 
 				&:nth-child(2) {
+					border-bottom: 1px solid #ddd;
+				}
+
+				&:nth-child(3) {
 					border-bottom: 1px solid #ddd;
 				}
 

@@ -39,7 +39,7 @@
 			console.log(getApp().globalData.iflogin);
 			if (getApp().globalData.iflogin == false) {
 				uni.navigateTo({
-					url: "../Login/Login"
+					// url: "../Login/Login"
 				})
 			} else if (getApp().globalData.qq.logined == true) {
 				that.avatarUrl = getApp().globalData.qq.avatarUrl;

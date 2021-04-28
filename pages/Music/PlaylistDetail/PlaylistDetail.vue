@@ -54,6 +54,7 @@
 			let playlist = JSON.parse(query.playlist);
 			let url = "/playlist/detail?id=" + playlist.playlist_id;
 			let res = await request(url, {}, "GET");
+			console.log(res.data.playlist.tracks);
 			that.PlaylistImg = res.data.playlist.coverImgUrl;
 			that.Playlistname = res.data.playlist.name;
 			that.updateTime = that.renderTime(res.data.playlist.updateTime);

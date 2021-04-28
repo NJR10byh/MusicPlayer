@@ -65,7 +65,6 @@
 				openId: "",
 				avatarUrl: ""
 			},
-
 		}
 	}
 </script>

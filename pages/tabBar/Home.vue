@@ -6,10 +6,10 @@
 			</view>
 		</view>
 		<view class="Mulu">
-			<view class="function">
+			<view class="function" @click="SongLists">
 				<view class="left">
 					<view class="function_icon">
-
+						<image src="../../static/assets/icon/SongList.png" mode=aspectFit></image>
 					</view>
 					<view class="function_name">
 						播放列表
@@ -19,36 +19,10 @@
 					<uni-icons type="forward" size="17" color="#999"></uni-icons>
 				</view>
 			</view>
-			<!-- <view class="function">
-				<view class="left">
-					<view class="function_icon">
-
-					</view>
-					<view class="function_name">
-						艺人
-					</view>
-				</view>
-				<view class="right">
-					<uni-icons type="forward" size="17" color="#999"></uni-icons>
-				</view>
-			</view>
-			<view class="function">
-				<view class="left">
-					<view class="function_icon">
-
-					</view>
-					<view class="function_name">
-						歌曲
-					</view>
-				</view>
-				<view class="right">
-					<uni-icons type="forward" size="17" color="#999"></uni-icons>
-				</view>
-			</view> -->
 			<view class="function" @click="chooseFile">
 				<view class="left">
 					<view class="function_icon">
-
+						<image src="../../static/assets/icon/File.png" mode="aspectFit"></image>
 					</view>
 					<view class="function_name">
 						获取本地文件
@@ -63,18 +37,31 @@
 			<view class="text">
 				最近添加
 			</view>
-			<view class="add_info">
-				<view class="music_info" v-for="items in RecentlyAdd" @click="Play(src1)">
-					<view class="musicimg">
-						<image :src="items.imgUrl" mode="aspectFit"></image>
+			<view class="Songs">
+				<view class="song" v-for="(items,index) in song" @click="Playsong(index)">
+					<view class="songimg">
+						{{index+1}}
 					</view>
-					<view class="musicinfo">
-						<view class="musicname">
-							{{items.musicname}}
+					<view class="songinfo">
+						<view class="songinfo_left">
+							<view class="songname">
+								{{items.songname}}
+							</view>
+							<view class="songextra">
+								<view class="vip">
+									本地
+								</view>
+								<view class="SQ">
+									标准
+								</view>
+								<view class="songauthor">
+									{{items.songauthor}}
+								</view>
+							</view>
 						</view>
-						<view class="musicauthor">
-							{{items.musicauthor}}
-						</view>
+						<!-- <view class="songinfo_right">
+							<image src="../../../static/assets/music/mv.png" mode="aspectFit"></image>
+						</view> -->
 					</view>
 				</view>
 			</view>
@@ -86,61 +73,46 @@
 	import request from "../API/musicAPI.js";
 	import chooseMusic from "../API/choosefile.js"
 	export default {
-		created: function() {
-			// this.getRecPlay("烟火里的尘埃");
-			// this.getRecPlay("失眠飞行");
-			// this.getRecPlay("错位时空");
-			// this.getRecPlay("起风了");
-			// this.getRecPlay("句号");
-			// this.getRecPlay("寒鸦少年");
-		},
+		created: function() {},
 		data() {
 			return {
 				audio: uni.createInnerAudioContext(),
 				RecentlyAdd: [],
+				song: []
 			};
 		},
 		methods: {
-			// 获取最近聆听
-			async getRecPlay(musicName) {
-				let that = this;
-				let res = await request(`/search?keywords=${musicName}`, {}, "GET");
-				let obj = {};
-				obj.imgUrl = res.data.result.songs[0].artists[0].img1v1Url;
-				obj.musicname = res.data.result.songs[0].name;
-				obj.musicauthor = res.data.result.songs[0].artists[0].name;
-				that.RecentlyAdd.unshift(obj);
-			},
-
-			// 播放音乐
-			Play(src) {
-				console.log("=====testClick=====");
-				//实例化声音  
-				const Audio = uni.createInnerAudioContext();
-				// Audio.autoplay = true;
-				Audio.src = src; //音频地址  
-				Audio.play(); //执行播放  
-				Audio.onError((res) => {
-					console.log(res.errMsg);
-				});
-				Audio.onPause(function() {
-					console.log('end');
-					Audio.destroy();
-				});
+			// 播放列表
+			SongLists() {
+				uni.navigateTo({
+					url: "../Music/MusicList/MusicList"
+				})
 			},
 			// 选择本地文件
 			chooseFile() {
+				let that = this;
 				console.log(plus.os.name);
 				if (plus.os.name == "Android");
 				chooseMusic((res) => {
 					console.log('file://' + res);
-					let songsrc = 'file://' + res;
-					this.audio.src = songsrc;
-					console.log(this.audio);
-					uni.navigateTo({
-						url: "../Music/MusicList/MusicList?songsrc=" + songsrc
-					})
+					let obj = {};
+					obj.songsrc = 'file://' + res;
+					obj.songname = obj.songsrc.split('/')[obj.songsrc.split('/').length - 1].split('-')[obj.songsrc
+						.split(
+							'/')[obj.songsrc.split('/').length - 1].split('-').length - 1].split('[')[0];
+					obj.songauthor = obj.songsrc.split('/')[obj.songsrc.split('/').length - 1].split('-')[0];
+					getApp().globalData.Song.push(obj);
+					that.song = getApp().globalData.Song;
 				}, "audio/*");
+			},
+			// 播放歌曲
+			Playsong(index) {
+				let songs = JSON.stringify(this.song);
+				let thisSong = index;
+				console.log(songs);
+				uni.navigateTo({
+					url: "../../components/MusicPlayer/MusicPlayer?song=" + songs + "&thisSong=" + thisSong,
+				})
 			}
 		}
 	}
@@ -169,7 +141,6 @@
 			width: 720rpx;
 			margin-top: 20rpx;
 			border-top: 1px solid #ddd;
-			border-bottom: 1px solid #ddd;
 
 			.function {
 				display: flex;
@@ -191,6 +162,23 @@
 
 				.left {
 					font-size: 20px;
+					// border: 1px solid red;
+					display: flex;
+					align-items: center;
+
+					.function_icon {
+						display: flex;
+						align-items: center;
+
+						image {
+							width: 60rpx;
+							height: 60rpx;
+						}
+					}
+
+					.function_name {
+						margin-left: 20rpx;
+					}
 				}
 			}
 		}
@@ -198,56 +186,105 @@
 		.Recent_Add {
 			width: 680rpx;
 			margin-top: 50rpx;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			// align-items: center;
+
 
 			.text {
 				font-size: 20px;
 				font-weight: bold;
 			}
 
-			.add_info {
-				margin: 10rpx 0;
-				// border: 1px solid red;
+			.Songs {
+				border-top: 1px solid #ddd;
+				width: 720rpx;
+				margin-top: 30rpx;
 				display: flex;
-				justify-content: space-between;
-				flex-wrap: wrap;
+				flex-direction: column;
+				align-self: flex-end;
 
-				.music_info {
-					// border: 1px solid red;
-					width: 320rpx;
+				.song {
 					display: flex;
-					flex-direction: column;
 					align-items: center;
+					margin-top: 10rpx;
 
-					.musicimg {
+					.songimg {
+						width: 80rpx;
+						height: 80rpx;
+						display: flex;
+						align-items: center;
+						justify-content: center;
 						// border: 1px solid red;
-						width: 320rpx;
-						height: 230rpx;
+						color: $theme-color;
+						font-size: 18px;
+						font-weight: bold;
 
-						image {
-							// border: 1px solid red;
-							width: 320rpx;
-							height: 218rpx;
-						}
+
 					}
 
-					.musicinfo {
-						width: 300rpx;
+					.songinfo {
 						display: flex;
-						flex-direction: column;
-						justify-content: center;
 						align-items: center;
-						margin-bottom: 20rpx;
-						// border: 1px solid red;
+						justify-content: space-between;
+						width: 620rpx;
+						margin-left: 20rpx;
+						padding: 10rpx 0;
+						border-bottom: 1px solid #ddd;
 
-						.musicname {
-							font-size: 15px;
-							font-weight: bold;
+						.songinfo_left {
+							display: flex;
+							flex-direction: column;
+							justify-content: center;
+							// border: 1px solid red;
+
+							.songname {
+								font-size: 18px;
+								font-weight: bold;
+							}
+
+							.songextra {
+								display: flex;
+								justify-content: flex-start;
+								align-items: center;
+
+								.vip {
+									border: 1px solid #ff7675;
+									font-size: 9px;
+									padding: 0 6rpx;
+									color: #ff7675;
+									border-radius: 10rpx;
+								}
+
+								.SQ {
+									border: 1px solid #ff9f43;
+									font-size: 9px;
+									padding: 0 6rpx;
+									color: #ff9f43;
+									border-radius: 10rpx;
+									margin-left: 5rpx;
+								}
+
+								.songauthor {
+									color: #aaa;
+									font-size: 13px;
+									font-weight: bold;
+									margin-left: 8rpx;
+								}
+							}
 						}
 
-						.musicauthor {
-							font-size: 13px;
-							font-weight: bold;
-							color: #aaa;
+						.songinfo_right {
+							// border: 1px solid red;
+							width: 40rpx;
+							height: 40rpx;
+							margin-right: 30rpx;
+
+							image {
+								width: 40rpx;
+								height: 40rpx;
+							}
 						}
 					}
 				}

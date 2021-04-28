@@ -20,8 +20,11 @@
 				</view>
 			</view>
 		</view>
-		<view class="today">
-
+		<view class="today" v-if="logined">
+			<view class="logined">
+				<image src="../../static/assets/icon/Logined.png" mode="aspectFit"></image>
+				<text>当且设备已登录</text>
+			</view>
 		</view>
 	</view>
 </template>
@@ -38,16 +41,20 @@
 			let that = this;
 			console.log(getApp().globalData.iflogin);
 			if (getApp().globalData.iflogin == false) {
+				// 自动检测是否登录，如果没有，自动跳转
 				uni.navigateTo({
-					// url: "../Login/Login"
+					url: "../Login/Login"
 				})
 			} else if (getApp().globalData.qq.logined == true) {
+				that.logined = true;
 				that.avatarUrl = getApp().globalData.qq.avatarUrl;
 				that.nickname = getApp().globalData.qq.nickName;
 			} else if (getApp().globalData.wechat.logined == true) {
+				that.logined = true;
 				that.avatarUrl = getApp().globalData.wechat.avatarUrl;
 				that.nickname = getApp().globalData.wechat.nickName;
 			} else if (getApp().globalData.weibo.logined == true) {
+				that.logined = true;
 				that.avatarUrl = getApp().globalData.weibo.avatarUrl;
 				that.nickname = getApp().globalData.weibo.nickName;
 			}
@@ -170,13 +177,30 @@
 		}
 
 		.today {
-			// border: 1px solid green;
 			width: 700rpx;
-			height: 300rpx;
-			background-color: #fff;
+			height: 500rpx;
 			border-radius: 20rpx;
 			margin-top: 20rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 
+			.logined {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+
+				image {
+					width: 40rpx;
+					height: 40rpx;
+				}
+
+				text {
+					color: #aaa;
+					font-weight: bold;
+					margin-top: 15rpx;
+				}
+			}
 		}
 	}
 </style>

@@ -11,14 +11,16 @@
 			"style": {
 				"navigationBarTitleText": "资料库"
 			}
-		}, {
+		},
+		{
 			"path": "pages/tabBar/Mine",
 			"style": {
 				"navigationBarTitleText": "我的",
 				"navigationBarBackgroundColor": "#F8F8F8",
 				"enablePullDownRefresh": true
 			}
-		}, {
+		},
+		{
 			"path": "pages/tabBar/Music",
 			"style": {
 				"navigationBarTitleText": "音乐广场",

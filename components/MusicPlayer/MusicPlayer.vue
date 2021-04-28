@@ -13,11 +13,11 @@
 			<image src="../../static/assets/music/nosongimg.png" mode="aspectFit" v-else></image>
 		</view>
 		<view class="audio-wrapper">
-			<view class="audio-number" style="margin-right:13rpx">{{ format(current) }}</view>
-			<u-slider v-model="slideWidth" @moving="moveing" @end="endMove" :disabled="loading"
-				style="width:524rpx;margin-top: 50rpx;" :block-width="20" block-color="#409EFF" :height="5"
-				inactive-color="#c4c4c4" :unidirectionalDatatTransfer="true" active-color='#409EFF'></u-slider>
-			<view class="audio-number" style="margin-left:13rpx">{{ format(duration) }}</view>
+			<view class="audio-number">{{ format(current) }}</view>
+			<u-slider class="audio-slider" v-model="slideWidth" @moving="moveing" @end="endMove" :disabled="loading"
+				:block-size="20" block-color="#409EFF" inactive-color="#c4c4c4" active-color='#409EFF' :height="6">
+			</u-slider>
+			<view class="audio-number">{{ format(duration) }}</view>
 		</view>
 		<view class="audio-control-wrapper" :style="{ color }">
 			<view class="PlayMode">
@@ -46,6 +46,9 @@
 			<view class="PlayMode Lyric" v-else>
 				<image src="../../static/assets/music/nolyric.png" mode="aspectFit"></image>
 			</view>
+		</view>
+		<view class="tips">
+			Tips：u-silder可拖动进度条当前适配iOS端，由于需要适配Android，自行做了组件封装，需要最新的安卓系统以及较好的处理器，如果出现卡顿，则手机不适配，会影响watch监听进度条，导致程序卡死
 		</view>
 	</view>
 </template>
@@ -145,17 +148,17 @@
 					this.loading = true
 				})
 			},
-			endMove() {
-				this.seek = false
+			endMove(e) {
 				this.play()
-				const pr = (this.slideWidth / 100) * this.duration
-				// this.current = pr
+				let pr = (this.slideWidth / 100) * this.duration
+				console.log(pr)
 				this.audio.seek(pr)
 			},
-			moveing() {
+			moveing(e) {
 				this.play()
 				this.seek = true
-				const pr = (this.slideWidth / 100) * this.duration
+				let pr = (this.slideWidth / 100) * this.duration;
+				console.log(pr)
 				this.current = pr
 			},
 			//返回prev事件
@@ -401,27 +404,29 @@
 	.audio-wrapper {
 		display: flex;
 		align-items: center;
-
-	}
-
-	.audio-number {
-		width: 64rpx;
-		height: 34rpx;
+		justify-content: space-between;
+		width: 660rpx;
 		margin-top: 50rpx;
-		font-size: 24rpx;
-		font-family: PingFang SC;
-		font-weight: 500;
-		text-align: center;
-		color: #409EFF;
-	}
+		// border: 1px solid red;
 
-	.audio-slider {
-		flex: 1;
-		margin: 0;
+		.audio-number {
+			width: 65rpx;
+			height: 34rpx;
+			font-size: 24rpx;
+			font-family: PingFang SC;
+			font-weight: 500;
+			color: #409EFF;
+			// border: 1px solid red;
+		}
+
+		.audio-slider {
+			width: 500rpx;
+			// border: 1px solid red;
+		}
 	}
 
 	.audio-control-wrapper {
-		margin-top: 64rpx;
+		margin-top: 50rpx;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -479,5 +484,10 @@
 		animation-iteration-count: infinite; //播放次数
 		animation-direction: normal; //是否逆向播放
 		animation-play-state: running; //动画是否暂停
+	}
+	.tips{
+		width: 650rpx;
+		margin-top: 100rpx;
+		color: #aaa;
 	}
 </style>

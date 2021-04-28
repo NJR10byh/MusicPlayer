@@ -34,15 +34,7 @@
 <script>
 	export default {
 		onLoad: function(query) {
-			let that = this;
-			let obj = {};
-			obj.songsrc = query.songsrc;
-			obj.songname = obj.songsrc.split('/')[obj.songsrc.split('/').length - 1].split('-')[obj.songsrc.split(
-				'/')[obj.songsrc.split('/').length - 1].split('-').length - 1].split('[')[0];
-			obj.songauthor = obj.songsrc.split('/')[obj.songsrc.split('/').length - 1].split('-')[0];
-			getApp().globalData.Song.push(obj);
-			console.log(getApp().globalData.Song);
-			that.song = getApp().globalData.Song;
+			this.song = getApp().globalData.Song;
 		},
 		data() {
 			return {

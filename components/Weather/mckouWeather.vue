@@ -192,7 +192,7 @@
 
 		.more-day-report {
 			// 690
-			width: 92%;
+			width: 100%;
 			padding: 10rpx 4%;
 
 			.top-module {

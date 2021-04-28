@@ -2,7 +2,7 @@
 	<view class="Music_Container">
 		<view class="Search_Music">
 			<text>搜索</text>
-			<input type="text" :value="musicname" placeholder="艺人、歌曲等更多内容" />
+			<input type="text" :value="musicname" placeholder="艺人、歌曲等更多内容 (不对此App开放)" />
 		</view>
 		<view class="Music_PlayList">
 			<text>精品歌单（鸣谢API提供方：网易云音乐）</text>
@@ -53,6 +53,7 @@
 					obj.coverImgUrl = res.data.playlists[i].coverImgUrl;
 					obj.name = res.data.playlists[i].name;
 					that.playlists.push(obj);
+					console.log(obj);
 				}
 			},
 			Playlist_detail(index) {
